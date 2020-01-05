@@ -1,0 +1,31 @@
+# Compiled class file
+*.class
+#过滤IDEA生成的配置文件夹
+.idea/
+.settings/
+#过滤IDEA生成的配置文件
+.DS_Store
+.project
+*.iml
+
+#过滤所有target子目录
+target/
+
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
