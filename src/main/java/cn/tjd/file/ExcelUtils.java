@@ -43,7 +43,7 @@ public class ExcelUtils {
     }
 
     /**
-     * 根据Map类型的数据集，导出默认文件名的Excel文件。<br><br/>
+     * 根据Map类型的数据集，导出默认文件名的Excel文件。文件通过获取HttpResponse中输出流，将文件响应给前端<br><br/>
      * headMap的key与数据对象（Map）的key相对应；headMap的value用于指定Excel表头显示的文字<br><br/>
      *
      *
@@ -58,7 +58,7 @@ public class ExcelUtils {
     }
 
     /**
-     * 根据Map类型的数据集，并通过response输出流导出Excel文件<br><br/>
+     * 根据Map类型的数据集，文件通过获取HttpResponse中输出流，将文件响应给前端<br><br/>
      * headMap用于指定表头数据，其中LinkedHashMap的key与dataArray中Map的Key相对应，value为生成的Excel文件的表头：<br><br/>
      * LinkedHashMap<String, String> title = new LinkedHashMap<>();<br/>
      * titles.add(title);<br/>
@@ -85,7 +85,7 @@ public class ExcelUtils {
     }
 
     /**
-     * 根据Java Bean对象集，导出默认文件名的Excel文件。<br><br/>
+     * 根据Java Bean对象集，导出默认文件名的Excel文件。文件通过获取HttpResponse中输出流，将文件响应给前端<br><br/>
      * headMap的key与JavaBean对象的属性名相对应；headMap的value用于指定Excel表头显示的文字<br><br/>
      *
      * @param excelType 用于指定导出的Excel文件格式
@@ -99,15 +99,7 @@ public class ExcelUtils {
     }
 
     /**
-     * 通过输出流导出Excel文件
-     * <p>headMap用于指定表头数据，其中headMap的LinkedHashMap的key与dataArray中Map的Key相对应，value为生成的Excel文件的表头：</p>
-     * <p>List<LinkedHashMap> titles = new ArrayList<>();</p>
-     * <p>LinkedHashMap<String, String> title = new LinkedHashMap<>();</p>
-     * <p>titles.add(title);</p>
-     * <p>title.put("name", "姓名");</p>
-     * <p>title.put("age", "年龄");</p>
-     * <p>title.put("errtxt", "错误详情");</p>
-     * <p>ExcelUtils.exportExcel(ExcelUtils.ExcelType.XLS, titles, data, "dealErrorDetails", "sheet1", response);</p>
+     * 通过JavaBean数据集指定的数据，生成对应的Excel文件，并通过获取HttpResponse中的输出流，将文件响应给前端
      *
      * @param excelType 导出的文件类型（通过ExcelUtils.ExcelType.XLS或ExcelUtils.ExcelType.XLSX指定文件类型）
      * @param headMap   表头名称
@@ -167,14 +159,14 @@ public class ExcelUtils {
 
 
     /**
-     * 导出Excel(.xlsx)格式
-     * <p>
-     * 表格头信息集合
-     *
-     * @param dataArray 数据数组
-     * @param os        文件输出流
+     * 根据excelType指定的文件格式，生成对应的WorkBoot，并通过输出流导出文件，其中表格数据由Map类型的集合作为载体
+     * @param excelType Excel文件的格式（XLS、XLSX）
+     * @param headerMap 用于指定表头信息，其中key对应dataList中的key，value对表表头显示的文字
+     * @param dataList 数据集
+     * @param sheetName 工作簿名称
+     * @param outputStream 输出流
      */
-    public static void createWorkBookByMap(ExcelType excelType, LinkedHashMap<String, String> headerMap, List<Map<String, Object>> dataArray, String fileName, OutputStream os) {
+    public static void createWorkBookByMap(ExcelType excelType, LinkedHashMap<String, String> headerMap, List<Map<String, Object>> dataList, String sheetName, OutputStream outputStream) {
         String datePattern = DEFAULT_DATE_PATTERN;
         int minBytes = DEFAULT_COLUMN_WIDTH;
         //声明一个工作簿
@@ -184,7 +176,7 @@ public class ExcelUtils {
         //生成数据样式
         CellStyle cellStyle = generateCellStyle(workbook);
         //生成一个(带名称)表格
-        Sheet sheet = workbook.createSheet(fileName);
+        Sheet sheet = workbook.createSheet(sheetName);
         int[] colWidthArr = new int[headerMap.size()];// 列宽数组
         String[] headKeyArr = new String[headerMap.size()];// headKey数组
         String[] headValArr = new String[headerMap.size()];// headVal数组
@@ -201,7 +193,7 @@ public class ExcelUtils {
          * 遍历数据集合，产生Excel行数据
          */
         int rowIndex = 0;
-        for (Map<String, Object> obj : dataArray) {
+        for (Map<String, Object> obj : dataList) {
             // 生成title+head信息
             if (rowIndex == 0) {
                 Row headerRow = sheet.createRow(0);// head行
@@ -234,9 +226,9 @@ public class ExcelUtils {
             rowIndex++;
         }
         try {
-            workbook.write(os);
-            os.flush();// 刷新此输出流并强制将所有缓冲的输出字节写出
-            os.close();// 关闭流
+            workbook.write(outputStream);
+            outputStream.flush();// 刷新此输出流并强制将所有缓冲的输出字节写出
+            outputStream.close();// 关闭流
             workbook.close();// 释放workbook所占用的所有windows资源
         } catch (IOException e) {
             e.printStackTrace();
@@ -245,14 +237,14 @@ public class ExcelUtils {
 
 
     /**
-     * 根据实体类中保存的数据生成Excel  WorkBook
-     * <p>
-     * 表格头信息集合
-     *
-     * @param dataList 数据数组(data为标准的JavaBean对象)
-     * @param os       文件输出流
+     * 根据excelType指定的文件格式，生成对应的WorkBoot，并通过输出流导出文件，其中表格数据由Java Bean对象作为载体
+     * @param excelType Excel文件的格式（XLS、XLSX）
+     * @param headerMap 用于指定表头信息，其中key对应dataList中Java Bean的属性，value对表表头显示的文字
+     * @param dataList Java Bean集合作为数据载体
+     * @param sheetName 工作簿名称
+     * @param outputStream 输出流
      */
-    public static void createWorkBookByObject(ExcelType excelType, LinkedHashMap<String, String> headerMap, List dataList, String fileName, OutputStream os) {
+    private static void createWorkBookByObject(ExcelType excelType, LinkedHashMap<String, String> headerMap, List dataList, String sheetName, OutputStream outputStream) {
         String datePattern = DEFAULT_DATE_PATTERN;
         int minBytes = DEFAULT_COLUMN_WIDTH;
         //声明一个工作簿
@@ -262,7 +254,7 @@ public class ExcelUtils {
         //生成数据样式
         CellStyle cellStyle = generateCellStyle(workbook);
         //生成一个(带名称)表格
-        Sheet sheet = workbook.createSheet(fileName);
+        Sheet sheet = workbook.createSheet(sheetName);
         int[] colWidthArr = new int[headerMap.size()];// 列宽数组
         String[] headKeyArr = new String[headerMap.size()];// headKey数组
         String[] headValArr = new String[headerMap.size()];// headVal数组
@@ -319,9 +311,9 @@ public class ExcelUtils {
             rowIndex++;
         }
         try {
-            workbook.write(os);
-            os.flush();// 刷新此输出流并强制将所有缓冲的输出字节写出
-            os.close();// 关闭流
+            workbook.write(outputStream);
+            outputStream.flush();// 刷新此输出流并强制将所有缓冲的输出字节写出
+            outputStream.close();// 关闭流
             workbook.close();// 释放workbook所占用的所有windows资源
         } catch (IOException e) {
             e.printStackTrace();
@@ -329,7 +321,7 @@ public class ExcelUtils {
     }
 
     /**
-     * 根据 ExcelType 动态生成WorkBook
+     * 根据 ExcelType 动态生成WorkBook（XLS和XLSX两种）
      *
      * @param excelType
      * @return
@@ -348,7 +340,7 @@ public class ExcelUtils {
     }
 
     /**
-     * 生成表头单元格样式
+     * 生成Excel表头单元格样式
      *
      * @param workbook
      * @return
@@ -372,7 +364,7 @@ public class ExcelUtils {
     }
 
     /**
-     * 生成数据单元格样式
+     * 生成Excel数据单元格样式
      *
      * @param workbook
      * @return
