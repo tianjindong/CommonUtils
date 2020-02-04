@@ -38,14 +38,23 @@ public class ExcelUtils {
     public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";// 默认日期格式
     public static final int DEFAULT_COLUMN_WIDTH = 17;// 默认列宽
 
-    public static enum ExcelType {
-        XLS, XLSX;
+    public enum ExcelType {
+        XLS(".xls"), XLSX(".xlsx");
+
+        private String suffix;
+
+        ExcelType(String suffix) {
+            this.suffix = suffix;
+        }
+
+        public String getSuffix() {
+            return this.suffix;
+        }
     }
 
     /**
      * 根据Map类型的数据集，导出默认文件名的Excel文件。文件通过获取HttpResponse中输出流，将文件响应给前端<br><br/>
      * headMap的key与数据对象（Map）的key相对应；headMap的value用于指定Excel表头显示的文字<br><br/>
-     *
      *
      * @param excelType 用于指定导出的Excel文件格式
      * @param headMap   表头名称
@@ -76,11 +85,7 @@ public class ExcelUtils {
      * @throws IOException
      */
     public static void exportExcelByMap(ExcelType excelType, LinkedHashMap<String, String> headMap, List<Map<String, Object>> dataArray, String filename, String sheetname, HttpServletResponse response) throws IOException {
-        if (excelType == ExcelType.XLS) {
-            response.setHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(filename + ".xls", "UTF-8"));
-        } else {
-            response.setHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(filename + ".xlsx", "UTF-8"));
-        }
+        response.setHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(filename + excelType.getSuffix(), "UTF-8"));
         createWorkBookByMap(excelType, headMap, dataArray, sheetname, response.getOutputStream());
     }
 
@@ -89,8 +94,8 @@ public class ExcelUtils {
      * headMap的key与JavaBean对象的属性名相对应；headMap的value用于指定Excel表头显示的文字<br><br/>
      *
      * @param excelType 用于指定导出的Excel文件格式
-     * @param headMap 表头名称
-     * @param dataList 数据集
+     * @param headMap   表头名称
+     * @param dataList  数据集
      * @param response
      * @throws IOException
      */
@@ -110,11 +115,7 @@ public class ExcelUtils {
      * @throws IOException
      */
     public static void exportExcelByObject(ExcelType excelType, LinkedHashMap<String, String> headMap, List dataList, String filename, String sheetname, HttpServletResponse response) throws IOException {
-        if (excelType == ExcelType.XLS) {
-            response.setHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(filename + ".xls", "UTF-8"));
-        } else {
-            response.setHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(filename + ".xlsx", "UTF-8"));
-        }
+        response.setHeader("Content-Disposition", "attachment;fileName=" + URLEncoder.encode(filename + excelType.getSuffix(), "UTF-8"));
         createWorkBookByObject(excelType, headMap, dataList, sheetname, response.getOutputStream());
     }
 
@@ -138,18 +139,9 @@ public class ExcelUtils {
         OutputStream os = null;
         try {
             long start = System.currentTimeMillis();
-            // .xlsx格式
-            if (excelType == ExcelType.XLS) {
-                os = new FileOutputStream(file.getAbsolutePath() + File.separator + start + ".xls");
-            } else {
-                os = new FileOutputStream(file.getAbsolutePath() + File.separator + start + ".xlsx");
-            }
+            os = new FileOutputStream(file.getAbsolutePath() + File.separator + start + excelType.getSuffix());
             createWorkBookByMap(excelType, headMap, dataArray, fileName, os);
-            if (excelType == ExcelType.XLS) {
-                result = execlPath + File.separator + start + ".xls";
-            } else {
-                result = execlPath + File.separator + start + ".xlsx";
-            }
+            result = execlPath + File.separator + start + excelType.getSuffix();
             os.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -160,10 +152,11 @@ public class ExcelUtils {
 
     /**
      * 根据excelType指定的文件格式，生成对应的WorkBoot，并通过输出流导出文件，其中表格数据由Map类型的集合作为载体
-     * @param excelType Excel文件的格式（XLS、XLSX）
-     * @param headerMap 用于指定表头信息，其中key对应dataList中的key，value对表表头显示的文字
-     * @param dataList 数据集
-     * @param sheetName 工作簿名称
+     *
+     * @param excelType    Excel文件的格式（XLS、XLSX）
+     * @param headerMap    用于指定表头信息，其中key对应dataList中的key，value对表表头显示的文字
+     * @param dataList     数据集
+     * @param sheetName    工作簿名称
      * @param outputStream 输出流
      */
     public static void createWorkBookByMap(ExcelType excelType, LinkedHashMap<String, String> headerMap, List<Map<String, Object>> dataList, String sheetName, OutputStream outputStream) {
@@ -238,10 +231,11 @@ public class ExcelUtils {
 
     /**
      * 根据excelType指定的文件格式，生成对应的WorkBoot，并通过输出流导出文件，其中表格数据由Java Bean对象作为载体
-     * @param excelType Excel文件的格式（XLS、XLSX）
-     * @param headerMap 用于指定表头信息，其中key对应dataList中Java Bean的属性，value对表表头显示的文字
-     * @param dataList Java Bean集合作为数据载体
-     * @param sheetName 工作簿名称
+     *
+     * @param excelType    Excel文件的格式（XLS、XLSX）
+     * @param headerMap    用于指定表头信息，其中key对应dataList中Java Bean的属性，value对表表头显示的文字
+     * @param dataList     Java Bean集合作为数据载体
+     * @param sheetName    工作簿名称
      * @param outputStream 输出流
      */
     private static void createWorkBookByObject(ExcelType excelType, LinkedHashMap<String, String> headerMap, List dataList, String sheetName, OutputStream outputStream) {
