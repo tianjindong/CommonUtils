@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Http请求工具类，该工具类仅依赖于Jackson（Java的JSON转换工具）
+ * Http请求工具类，该工具类仅依赖于Jackson（Java的JSON转换工具），该工具类使用JDK自带的类库实现，市面上有很多优秀的第三方库（OkHttp）
+ *
  * @Auther: TJD
  * @Date: 2020-01-14
  * @DESCRIPTION:

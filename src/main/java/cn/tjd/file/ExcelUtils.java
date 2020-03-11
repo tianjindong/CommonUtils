@@ -185,38 +185,40 @@ public class ExcelUtils {
         /**
          * 遍历数据集合，产生Excel行数据
          */
-        int rowIndex = 0;
-        for (Map<String, Object> obj : dataList) {
-            // 生成title+head信息
-            if (rowIndex == 0) {
-                Row headerRow = sheet.createRow(0);// head行
-                for (int j = 0; j < headValArr.length; j++) {
-                    headerRow.createCell(j).setCellValue(headValArr[j]);
-                    headerRow.getCell(j).setCellStyle(headerStyle);
+        if (dataList != null) {
+            int rowIndex = 0;
+            for (Map<String, Object> obj : dataList) {
+                // 生成title+head信息
+                if (rowIndex == 0) {
+                    Row headerRow = sheet.createRow(0);// head行
+                    for (int j = 0; j < headValArr.length; j++) {
+                        headerRow.createCell(j).setCellValue(headValArr[j]);
+                        headerRow.getCell(j).setCellStyle(headerStyle);
+                    }
+                    rowIndex = 1;
                 }
-                rowIndex = 1;
-            }
-            // 生成数据
-            Row dataRow = sheet.createRow(rowIndex);// 创建行
-            for (int k = 0; k < headKeyArr.length; k++) {
-                Cell cell = dataRow.createCell(k);// 创建单元格
-                Object o = obj.get(headKeyArr[k]);
-                String cellValue = "";
-                if (o == null) {
-                    cellValue = "";
-                } else if (o instanceof Date) {
-                    cellValue = new SimpleDateFormat(datePattern).format(o);
-                } else if (o instanceof Float || o instanceof Double) {
-                    cellValue = new BigDecimal(o.toString()).setScale(2,
-                            BigDecimal.ROUND_HALF_UP).toString();
-                } else {
-                    cellValue = o.toString();
-                }
+                // 生成数据
+                Row dataRow = sheet.createRow(rowIndex);// 创建行
+                for (int k = 0; k < headKeyArr.length; k++) {
+                    Cell cell = dataRow.createCell(k);// 创建单元格
+                    Object o = obj.get(headKeyArr[k]);
+                    String cellValue = "";
+                    if (o == null) {
+                        cellValue = "";
+                    } else if (o instanceof Date) {
+                        cellValue = new SimpleDateFormat(datePattern).format(o);
+                    } else if (o instanceof Float || o instanceof Double) {
+                        cellValue = new BigDecimal(o.toString()).setScale(2,
+                                BigDecimal.ROUND_HALF_UP).toString();
+                    } else {
+                        cellValue = o.toString();
+                    }
 
-                cell.setCellValue(cellValue);
-                cell.setCellStyle(cellStyle);
+                    cell.setCellValue(cellValue);
+                    cell.setCellStyle(cellStyle);
+                }
+                rowIndex++;
             }
-            rowIndex++;
         }
         try {
             workbook.write(outputStream);
