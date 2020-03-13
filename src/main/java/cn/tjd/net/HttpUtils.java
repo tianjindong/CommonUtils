@@ -20,6 +20,9 @@ public class HttpUtils {
 
     private final static ObjectMapper mapper = new ObjectMapper();
 
+    private HttpUtils() {
+    }
+
     /**
      * 向指定URL发送GET方法的请求
      *

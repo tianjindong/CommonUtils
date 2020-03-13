@@ -105,6 +105,7 @@ public class MD5Utils {
 
     /**
      * 判断两个签名字符串是否相等
+     *
      * @param md5Str
      * @param md5Str2
      * @return

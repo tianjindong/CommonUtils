@@ -6,6 +6,10 @@ package cn.tjd.string;
  * @DESCRIPTION:
  **/
 public class StringUtils {
+
+    private StringUtils() {
+    }
+
     /**
      * 由于数据库中varchar数据类型，一个中文字符占两个字节，也就是说varchar(100)，只能插入50个中文字符，
      * 该方法用于将字符串动态裁切成指定字节长度的字符串

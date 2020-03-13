@@ -38,6 +38,9 @@ public class ExcelUtils {
     public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";// 默认日期格式
     public static final int DEFAULT_COLUMN_WIDTH = 17;// 默认列宽
 
+    private ExcelUtils() {
+    }
+
     public enum ExcelType {
         XLS(".xls"), XLSX(".xlsx");
 
@@ -120,7 +123,8 @@ public class ExcelUtils {
     }
 
     /**
-     * 将文件生成在本地后，然后将下载路径返回给前端
+     * 将文件生成在本地后，然后将下载路径返回给前端（不推荐使用）。
+     * 推荐采用输出流返回的形式导出文件，节省服务器资源
      *
      * @param dataArray 数据集合
      * @param fileName  sheet名称
